@@ -1,0 +1,949 @@
+{
+	"folder_history":
+	[
+		"/home/bery/Work/c6748"
+	],
+	"last_version": 3126,
+	"last_window_id": 3,
+	"log_indexing": false,
+	"settings":
+	{
+		"new_window_height": 1026.0,
+		"new_window_settings":
+		{
+			"auto_complete":
+			{
+				"selected_items":
+				[
+				]
+			},
+			"build_system_choices":
+			[
+			],
+			"build_varint": "",
+			"command_palette":
+			{
+				"height": 92.0,
+				"last_filter": "install",
+				"selected_items":
+				[
+					[
+						"install",
+						"Package Control: Install Package"
+					],
+					[
+						"ctags",
+						"CTags: Rebuild Tags"
+					]
+				],
+				"width": 593.0
+			},
+			"console":
+			{
+				"height": 126.0,
+				"history":
+				[
+					"import urllib.request,os,hashlib; h = 'df21e130d211cfc94d9b0905775a7c0f' + '1e3d39e33b79698005270310898eea76'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+				]
+			},
+			"distraction_free":
+			{
+				"menu_visible": true,
+				"show_minimap": false,
+				"show_open_files": false,
+				"show_tabs": false,
+				"side_bar_visible": false,
+				"status_bar_visible": false
+			},
+			"file_history":
+			[
+				"/home/bery/Work/c6748/C6748_LCDK.gel"
+			],
+			"find":
+			{
+				"height": 34.0
+			},
+			"find_in_files":
+			{
+				"height": 0.0,
+				"where_history":
+				[
+				]
+			},
+			"find_state":
+			{
+				"case_sensitive": false,
+				"find_history":
+				[
+					"NormalRoutine",
+					"Normal",
+					"Routine",
+					"NormalRoutin e",
+					"F7_Cntrl_Handler",
+					"FSM"
+				],
+				"highlight": true,
+				"in_selection": false,
+				"preserve_case": false,
+				"regex": false,
+				"replace_history":
+				[
+				],
+				"reverse": false,
+				"show_context": true,
+				"use_buffer2": true,
+				"whole_word": false,
+				"wrap": true
+			},
+			"incremental_find":
+			{
+				"height": 23.0
+			},
+			"input":
+			{
+				"height": 0.0
+			},
+			"menu_visible": true,
+			"output.find_results":
+			{
+				"height": 0.0
+			},
+			"pinned_build_system": "",
+			"replace":
+			{
+				"height": 42.0
+			},
+			"save_all_on_build": true,
+			"select_file":
+			{
+				"height": 0.0,
+				"last_filter": "",
+				"selected_items":
+				[
+				],
+				"width": 0.0
+			},
+			"select_project":
+			{
+				"height": 0.0,
+				"last_filter": "",
+				"selected_items":
+				[
+				],
+				"width": 0.0
+			},
+			"select_symbol":
+			{
+				"height": 0.0,
+				"last_filter": "",
+				"selected_items":
+				[
+				],
+				"width": 0.0
+			},
+			"show_minimap": true,
+			"show_open_files": false,
+			"show_tabs": true,
+			"side_bar_visible": true,
+			"side_bar_width": 254.0,
+			"status_bar_visible": true,
+			"template_settings":
+			{
+			}
+		},
+		"new_window_width": 1920.0
+	},
+	"windows":
+	[
+		{
+			"auto_complete":
+			{
+				"selected_items":
+				[
+				]
+			},
+			"buffers":
+			[
+				{
+					"contents": "#include \"stdint.h\"\n#include \"stdbool.h\"\n#include \"hw_psc_C6748.h\"\n#include \"soc_C6748.h\"\n#include \"interrupt.h\"\n#include \"uartStdio.h\"\n#include \"lcdkC6748.h\"\n#include \"hw_types.h\"\n#include \"edma.h\"\n#include \"psc.h\"\n#include \"qdma_test.h\"\n#include \"outputs.h\"\n#include \"inputs.h\"\n#include \"quad_uart.h\"\n#include \"gpio.h\"\n#include \"rb.h\"\n#include \"cpld.h\"\n#include \"inputs.h\"\nextern F7_Cntrl_Handler_t F7_Cntrl_Handler;\n\n//Setting Channels for DMA\nextern uint8_t mock_data_A[192];\nextern uint8_t mock_data_B[192];\n#pragma DATA_ALIGN(Chip00_Sample, 8)\nuint8_t Chip00_Sample[64] = {0};\n#pragma DATA_ALIGN(Chip01_Sample, 8)\nuint8_t Chip01_Sample[64] = {0};\n#pragma DATA_ALIGN(Data_Raw, 8)\nuint8_t Data_Raw[64*3*2] = {0};\n#pragma DATA_ALIGN(Data_Ordered, 8)\nuint8_t Data_Ordered[64*3*2] = {0};\n#pragma DATA_ALIGN(Data_Intermediate, 8)\nuint32_t Data_Intermediate[64*2] = {0};\n#pragma DATA_ALIGN(Data_Final_Ping, 8)\nuint32_t Data_Final_Ping[128][2080] = {0}; //byte aligned\n#pragma DATA_ALIGN(Data_Final_Pong, 8)\nuint32_t Data_Final_Pong[128][2080] = {0};\nvolatile uint8_t Counter_Pivot=0;\nvolatile bool Snippet_DMAed=0;\n\nvoid (*cb_Fxn[EDMA3_NUM_TCC])(unsigned int tcc, unsigned int status);\nvoid (*cb1_Fxn[EDMA3_NUM_TCC])(unsigned int tcc, unsigned int status);\nvolatile bool ARRAY_GO=0;\n//extern Output_Pin_t DSP2WDT_STR;\nEDMA3CCPaRAMEntry PSet00 = {\n\t/* Fill the PaRAM Set with transfer specific information */\n\t.srcAddr    = (unsigned int) \tSOC_EMIFA_CS4_ADDR + QUAD_CS_A,\n    //.srcAddr    = (unsigned int) mock_data_A,\n\t.destAddr   = (unsigned int) \tData_Raw \t\t\t\t,\n\t.aCnt \t\t= (unsigned short)\t1 \t\t\t\t\t\t,\n\t.bCnt \t\t= (unsigned short)\t64 \t\t\t\t\t\t,\n\t.cCnt \t\t= (unsigned short)\t1\t\t\t\t\t\t,\n\t.srcBIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.destBIdx \t= (short)\t\t\t1\t\t\t\t\t\t,\n\t.srcCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.destCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.linkAddr\t= (unsigned short)\t0xFFFFu\t \t\t\t\t,\n\t.bCntReload = (unsigned short)\t0u \t\t\t\t\t\t,\n\t.opt \t\t= (unsigned int)\t0x00401004\t\t\t\t,\n};\nEDMA3CCPaRAMEntry PSet01 = {\n\t/* Fill the PaRAM Set with transfer specific information */\n\t.srcAddr    = (unsigned int) \tSOC_EMIFA_CS4_ADDR + QUAD_CS_C,\n    //.srcAddr    = (unsigned int) mock_data_B,\n\t.destAddr   = (unsigned int) \tData_Raw+(64*3) \t\t,\n\t.aCnt \t\t= (unsigned short)\t1 \t\t\t\t\t\t,\n\t.bCnt \t\t= (unsigned short)\t64 \t\t\t\t\t\t,\n\t.cCnt \t\t= (unsigned short)\t1\t\t\t\t\t\t,\n\t.srcBIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.destBIdx \t= (short)\t\t\t1\t\t\t\t\t\t,\n\t.srcCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.destCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.linkAddr\t= (unsigned short)\t0xFFFFu\t \t\t\t\t,\n\t.bCntReload = (unsigned short)\t0u \t\t\t\t\t\t,\n\t.opt \t\t= (unsigned int)\t0x00101004\t\t\t\t,\n};\nEDMA3CCPaRAMEntry PSetOrder00 = {\n\t/* Fill the PaRAM Set with transfer specific information */\n\t.srcAddr    = (unsigned int) \tData_Raw \t\t\t\t,\n\t.destAddr   = (unsigned int) \tData_Ordered\t\t\t,\n\t.aCnt \t\t= (unsigned short)\t3*8\t\t\t\t\t\t,\n\t.bCnt \t\t= (unsigned short)\t8 \t\t\t\t\t\t,\n\t.cCnt \t\t= (unsigned short)\t1\t\t\t\t\t\t,\n\t.srcBIdx \t= (short)\t\t\t3*8\t\t\t\t\t\t,\n\t.destBIdx \t= (short)\t\t\t3*8*2\t\t\t\t\t,\n\t.srcCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.destCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.linkAddr\t= (unsigned short)\t0xFFFFu\t \t\t\t\t,\n\t.bCntReload = (unsigned short)\t0u \t\t\t\t\t\t,\n\t.opt \t\t= (unsigned int)\t0x00403004\t\t\t\t,\n};\nEDMA3CCPaRAMEntry PSetOrder01 = {\n\t/* Fill the PaRAM Set with transfer specific information */\n\t.srcAddr    = (unsigned int) \tData_Raw +(64*3)\t\t,\n\t.destAddr   = (unsigned int) \tData_Ordered +(3*8)\t\t,\n\t.aCnt \t\t= (unsigned short)\t3*8\t\t\t\t\t\t,\n\t.bCnt \t\t= (unsigned short)\t8 \t\t\t\t\t\t,\n\t.cCnt \t\t= (unsigned short)\t1\t\t\t\t\t\t,\n\t.srcBIdx \t= (short)\t\t\t3*8\t\t\t\t\t\t,\n\t.destBIdx \t= (short)\t\t\t3*8*2\t\t\t\t\t,\n\t.srcCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.destCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.linkAddr\t= (unsigned short)\t0xFFFFu\t \t\t\t\t,\n\t.bCntReload = (unsigned short)\t0u \t\t\t\t\t\t,\n\t.opt \t\t= (unsigned int)\t0x00404004\t\t\t\t,\n};\n\nEDMA3CCPaRAMEntry PSetPreSort = {\n\t/* Fill the PaRAM Set with transfer specific information */\n\t.srcAddr    = (unsigned int) \tData_Ordered \t\t\t,\n\t.destAddr   = (unsigned int) \tData_Intermediate +1\t,\n\t.aCnt \t\t= (unsigned short)\t3 \t\t\t\t\t\t,\n\t.bCnt \t\t= (unsigned short)\t64*2 \t\t\t\t\t,\n\t.cCnt \t\t= (unsigned short)\t1\t\t\t\t\t\t,\n\t.srcBIdx \t= (short)\t\t\t3\t\t\t\t\t\t,\n\t.destBIdx \t= (short)\t\t\t4\t\t\t\t\t\t,\n\t.srcCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.destCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.linkAddr\t= (unsigned short)\t0xFFFFu\t \t\t\t\t,\n\t.bCntReload = (unsigned short)\t0u \t\t\t\t\t\t,\n\t.opt \t\t= (unsigned int)\t0x00405004\t\t\t\t,\n};\nEDMA3CCPaRAMEntry PSetOut = {\n\t/* Fill the PaRAM Set with transfer specific information */\n\t.srcAddr    = (unsigned int) \tData_Intermediate \t\t,\n\t.destAddr   = (unsigned int) \tSOC_EMIFA_CS2_ADDR + CPLD_W_PUSH_ADDR,\n\t.aCnt \t\t= (unsigned short)\t1 \t\t\t\t\t\t,\n\t.bCnt \t\t= (unsigned short)\t64*2*4 \t\t\t\t\t,\n\t.cCnt \t\t= (unsigned short)\t1\t\t\t\t\t\t,\n\t.srcBIdx \t= (short)\t\t\t1\t\t\t\t\t\t,\n\t.destBIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.srcCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.destCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.linkAddr\t= (unsigned short)\t0xFFFFu\t \t\t\t\t,\n\t.bCntReload = (unsigned short)\t0u \t\t\t\t\t\t,\n\t.opt \t\t= (unsigned int)\t0x00105004\t\t\t\t,\n};\n\nEDMA3CCPaRAMEntry PSetSort = {\n\t.srcAddr    = (unsigned int) \tData_Intermediate\t\t,\n\t.destAddr   = (unsigned int) \tData_Final_Ping\t\t\t,\n\t.aCnt \t\t= (unsigned short)\t4 \t\t\t\t\t\t,\n\t.bCnt \t\t= (unsigned short)\t64*2 \t\t\t\t\t,\n\t.cCnt \t\t= (unsigned short)\t2080\t\t        \t,\n\t.srcBIdx \t= (short)\t\t\t4\t\t\t\t\t\t,\n\t.destBIdx \t= (short)\t\t\t4*2080 \t\t\t\t\t,\n\t.srcCIdx \t= (short)\t\t\t0\t\t\t\t\t\t,\n\t.destCIdx \t= (short)\t\t\t4\t\t\t\t\t\t,\n\t.linkAddr\t= (unsigned short)\t0xFFFFu\t \t\t\t\t,\n\t.bCntReload = (unsigned short)\t0u \t\t\t\t\t\t,\n\t.opt \t\t= (unsigned int)\t0x00106004\t\t\t\t,\n};\n\nvoid DMA_Set(void)\n{\n\t//Initializing Mock data arrays\n    uint32_t i;\n    for(i=0;i<64;i++) {\n    \tChip00_Sample[i] = 0xFF - (uint8_t)i;\n    \tChip01_Sample[i] = (uint8_t) i;\n    }\n\t/* Request DMA channel and TCC */\n\tEDMA3RequestChannel(SOC_EDMA30CC_0_REGS, EDMA3_CHANNEL_TYPE_DMA, 0, 0, 0);\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 0, &PSet00);\n\n\tEDMA3RequestChannel(SOC_EDMA30CC_0_REGS, EDMA3_CHANNEL_TYPE_DMA, 1, 1, 0);\n\tcb_Fxn[1] = Snippet_Complete_ISR;\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 1, &PSet01);\n\n\tEDMA3RequestChannel(SOC_EDMA30CC_0_REGS, EDMA3_CHANNEL_TYPE_DMA, 2, 2, 0);\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 2, &PSetOrder00);\n\n\tEDMA3RequestChannel(SOC_EDMA30CC_0_REGS, EDMA3_CHANNEL_TYPE_DMA, 3, 3, 0);\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 3, &PSetOrder01);\n\n\tEDMA3RequestChannel(SOC_EDMA30CC_0_REGS, EDMA3_CHANNEL_TYPE_DMA, 4, 4, 0);\n\tcb_Fxn[4] = PreSort_Complete_ISR;\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 4, &PSetPreSort);\n\n\tEDMA3RequestChannel(SOC_EDMA30CC_0_REGS, EDMA3_CHANNEL_TYPE_DMA, 5, 5, 0);\n\tcb_Fxn[5] = Data_Out_ISR;\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 5, &PSetOut);\n\n\tEDMA3RequestChannel(SOC_EDMA30CC_0_REGS, EDMA3_CHANNEL_TYPE_DMA, 6, 6, 0);\n\tcb_Fxn[6] = Sort_Complete_ISR;\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 6, &PSetSort);\n\n\n}\nvoid Snippet_Complete_ISR(unsigned int tcc, unsigned int status)\n{\n\t//DSP2WDT_STR.Write(//DSP2WDT_STR,1);\n\tif(F7_Cntrl_Handler.Work_in_main) F7_Cntrl_Handler.Work_in_main = 0;\n\t++Counter_Pivot;\n    if(Counter_Pivot == 3){\n         Counter_Pivot = 0;\n        EDMA3EnableTransfer(SOC_EDMA30CC_0_REGS, 2, EDMA3_TRIG_MODE_MANUAL);\n    }\n\tPSet00.destAddr     = (unsigned int) Data_Raw+(64*Counter_Pivot);\n\tPSet01.destAddr     = (unsigned int) Data_Raw+(64*(3+Counter_Pivot));\n    //PSet00.srcAddr     = (unsigned int) mock_data_A+(64*Counter_Pivot);\n    //PSet01.srcAddr     = (unsigned int) mock_data_B+(64*(Counter_Pivot));\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 0, &PSet00);\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 1, &PSet01);\n\tGPIOBankIntEnable(SOC_GPIO_0_REGS, SYS_INT_GPIO_B0INT);\n\t//if(Counter_Pivot==0) \n\t//{\n\t//\t//\n\t//\t\n\t//}\n\tSnippet_DMAed=1;\n\t//DSP2WDT_STR.Write(//DSP2WDT_STR,0);\n}\nvoid PreSort_Complete_ISR(unsigned int tcc, unsigned int status)\n{\n\t\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 2, &PSetOrder00);\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 3, &PSetOrder01);\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 4, &PSetPreSort);\n\t\n\tEDMA3EnableTransfer(SOC_EDMA30CC_0_REGS, 5, EDMA3_TRIG_MODE_MANUAL);\n}\n\nvoid Data_Out_ISR(unsigned int tcc, unsigned int status)\n{\n    //DSP2WDT_STR.Write(//DSP2WDT_STR,1);\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 2, &PSetOrder00);\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 3, &PSetOrder01);\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 4, &PSetPreSort);\n    EDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 5, &PSetOut);\n    //VSYNC\n    (*(volatile uint16_t*)(SOC_EMIFA_CS2_ADDR + CPLD_W_VSYNC_ADDR)) = (uint16_t) 0xAB;\n\n    if(!F7_Cntrl_Handler.Work_in_main) \tF7_Cntrl_Handler.Routine();\n\n    EDMA3EnableTransfer(SOC_EDMA30CC_0_REGS, 6, EDMA3_TRIG_MODE_MANUAL);\n    //DSP2WDT_STR.Write(//DSP2WDT_STR,0);\n}\nvolatile bool buff_swap=1;\nvoid Sort_Complete_ISR(unsigned int tcc, unsigned int status)\n{\n\tif(buff_swap){\n\t\tPSetSort.destAddr   = (unsigned int) \tData_Final_Pong;\n\t\tbuff_swap =0;\n\t}\n\telse{\n\t\tPSetSort.destAddr   = (unsigned int) \tData_Final_Ping;\n\t\tbuff_swap = 1;\n\t}\n\tARRAY_GO=1;\n\tEDMA3SetPaRAM(SOC_EDMA30CC_0_REGS, 6, &PSetSort);\n}\n\nvolatile bool QUADA_UART_ERROR = 0;\nvolatile bool QUADC_UART_ERROR = 0;\nvoid Quad_GPIO_ISR_DMA(void)\n{\n\t//static uint8_t josh = 1;\n\t//DSP2WDT_STR.Write(//DSP2WDT_STR,1);\n\tGPIOBankIntDisable(SOC_GPIO_0_REGS, SYS_INT_GPIO_B0INT);\n\t/* Clear interrupt status in DSPINTC */\n\tIntEventClear(SYS_INT_GPIO_0BINT);\n\t/*Get the Pending Event*/\n\tbool Set = (bool) GPIOPinIntStatus(SOC_GPIO_0_REGS, 3);\n\t//For Data Integrity Purposes, make sure that all Interruptions are set, then clear them\n\tGPIOPinIntClear(SOC_GPIO_0_REGS, 1);\n\tGPIOPinIntClear(SOC_GPIO_0_REGS, 2);\n\tGPIOPinIntClear(SOC_GPIO_0_REGS, 3);\n\tGPIOPinIntClear(SOC_GPIO_0_REGS, 4);\n\t//if(josh){\n\t//\tjosh=0;\n\t//\tGPIOBankIntEnable(SOC_GPIO_0_REGS, SYS_INT_GPIO_B0INT);\n\t//\treturn;\n\t//}\n\tstatic uint32_t josh_trick;\n\tstatic uint8_t ISR_reg,LSRA_reg,LSRC_reg;\n\tfor(josh_trick=0;josh_trick<10;josh_trick++)\n\t{\n\t    ISR_reg = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_C + QUAD_READ_ISR));\n\t    ISR_reg = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_A + QUAD_READ_ISR));\n\t    ISR_reg = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_C + QUAD_READ_ISR));\n\t    ISR_reg = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_A + QUAD_READ_ISR));\n\t    LSRA_reg = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_A + QUAD_READ_LSR));\n\t    LSRC_reg = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_C + QUAD_READ_LSR));\n\t}\n\tif((LSRA_reg & 0x01) == 0) QUADA_UART_ERROR =1;\n\tif((LSRC_reg & 0x01) == 0) QUADC_UART_ERROR =1;\n\t//if(Set) EDMA3EnableTransfer(SOC_EDMA30CC_0_REGS, 0, EDMA3_TRIG_MODE_MANUAL);\n\tEDMA3EnableTransfer(SOC_EDMA30CC_0_REGS, 0, EDMA3_TRIG_MODE_MANUAL);\n    GPIOBankIntEnable(SOC_GPIO_0_REGS, SYS_INT_GPIO_B0INT);\n    //DSP2WDT_STR.Write(//DSP2WDT_STR,0);\n\t\n}\n\nvoid edma3CC1ComplIsr()\n{\n\tvolatile unsigned int pendingIrqs;\n\tvolatile unsigned int isIPR = 0;\n\n\tunsigned int indexl;\n\tunsigned int Cnt = 0;\n\tindexl = 1u;\n\tIntEventClear(SYS_INT_EDMA3_1_CC0_INT1);\n\n\tisIPR = EDMA3GetIntrStatus(SOC_EDMA31CC_0_REGS);\n\tif(isIPR)\n\t{\n\t\twhile ((Cnt < EDMA3CC_COMPL_HANDLER_RETRY_COUNT)&& (indexl != 0u))\n\t{\n\t\tindexl = 0u;\n\t\tpendingIrqs = EDMA3GetIntrStatus(SOC_EDMA31CC_0_REGS);\n\t\twhile (pendingIrqs)\n\t\t{\n\t\tif(TRUE == (pendingIrqs & 1u))\n\t\t\t\t{\n\t\t\t\tEDMA3ClrIntr(SOC_EDMA31CC_0_REGS, indexl);\n\t\t\t\t(*cb1_Fxn[indexl])(indexl, EDMA3_XFER_COMPLETE);\n\t\t\t\t}\n\t\t\t\t++indexl;\n\t\t\t\tpendingIrqs >>= 1u;\n\t\t}\n\t\t\tCnt++;\n\t}\n\t}\n}\nvoid registerEdma3Interrupts(void)\n{\n\tIntRegister(C674X_MASK_INT4, edma3CCComplIsr);\n\tIntRegister(C674X_MASK_INT5, edma3CCErrIsr);\n\n\tIntEventMap(C674X_MASK_INT4, SYS_INT_EDMA3_0_CC0_INT1);\n\tIntEventMap(C674X_MASK_INT5, SYS_INT_EDMA3_0_CC0_ERRINT);\n\n\tIntEnable(C674X_MASK_INT4);\n\tIntEnable(C674X_MASK_INT5);    \n\n\tIntRegister(C674X_MASK_INT7, edma3CC1ComplIsr);\n\tIntRegister(C674X_MASK_INT8, edma3CC1ErrIsr);\n\n\tIntEventMap(C674X_MASK_INT7, SYS_INT_EDMA3_1_CC0_INT1);\n\tIntEventMap(C674X_MASK_INT8, SYS_INT_EDMA3_1_CC0_ERRINT);\n\n\tIntEnable(C674X_MASK_INT7);\n\tIntEnable(C674X_MASK_INT8);    \n}\n\n\nvoid edma3CC1ErrIsr()\n{\n\tvolatile unsigned int pendingIrqs;\n\tunsigned int Cnt = 0u;\n\tunsigned int index;\n\tunsigned int evtqueNum = 0;  /* Event Queue Num */\n\n\tpendingIrqs = 0u;\n\tindex = 1u;\n\n\tIntEventClear(SYS_INT_EDMA3_1_CC0_ERRINT);\n\tif((EDMA3GetErrIntrStatus(SOC_EDMA31CC_0_REGS) != 0 )\n\t\t|| (EDMA3QdmaGetErrIntrStatus(SOC_EDMA31CC_0_REGS) != 0)\n\t\t|| (EDMA3GetCCErrStatus(SOC_EDMA31CC_0_REGS) != 0))\n\t{\n\t\t/* Loop for EDMA3CC_ERR_HANDLER_RETRY_COUNT number of time,\n\t\t * breaks when no pending interrupt is found \n\t\t */\n\t\twhile ((Cnt < EDMA3CC_ERR_HANDLER_RETRY_COUNT)\n\t\t\t\t\t&& (index != 0u))\n\t\t{\n\t\t\tindex = 0u;\n\t\t\tpendingIrqs = EDMA3GetErrIntrStatus(SOC_EDMA31CC_0_REGS);\n\t\t\twhile (pendingIrqs)\n\t\t\t{\n\t\t\t/*Process all the pending interrupts*/\n\t\t\tif(TRUE == (pendingIrqs & 1u))\n\t\t\t{\n\t\t\t\t\t/* Write to EMCR to clear the corresponding EMR bits.\n\t\t\t\t\t */\n\t\t\t\t\t/*Clear any SER*/\n\t\t\t\tEDMA3ClrMissEvt(SOC_EDMA31CC_0_REGS, index);\n\t\t\t\t}\n\t\t\t\t++index;\n\t\t\t\tpendingIrqs >>= 1u;\n\t\t\t}\n\t\t\tindex = 0u;\n\t\t\tpendingIrqs = EDMA3QdmaGetErrIntrStatus(SOC_EDMA31CC_0_REGS);\n\t\t\twhile (pendingIrqs)\n\t\t\t{\n\t\t\t\t/*Process all the pending interrupts*/\n\t\t\t\tif(TRUE == (pendingIrqs & 1u))\n\t\t\t\t{\n\t\t\t/* Here write to QEMCR to clear the corresponding QEMR bits*/\n\t\t\t\t\t/*Clear any QSER*/\n\t\t\t\t\tEDMA3QdmaClrMissEvt(SOC_EDMA31CC_0_REGS, index);\n\t\t\t\t}\n\t\t\t\t++index;\n\t\t\t\tpendingIrqs >>= 1u;\n\t\t\t}\n\t\t\tindex = 0u;\n\t\t\tpendingIrqs = EDMA3GetCCErrStatus(SOC_EDMA31CC_0_REGS);\n\t\t\tif (pendingIrqs != 0u)\n\t\t\t{\n\t\t\t/* Process all the pending CC error interrupts. */\n\t\t\t/* Queue threshold error for different event queues.*/\n\t\t\tfor (evtqueNum = 0u; evtqueNum < SOC_EDMA3_NUM_EVQUE; evtqueNum++)\n\t\t\t\t{\n\t\t\t\tif((pendingIrqs & (1u << evtqueNum)) != 0u)\n\t\t\t\t{\n\t\t\t\t\t\t/* Clear the error interrupt. */\n\t\t\t\t\t\tEDMA3ClrCCErr(SOC_EDMA31CC_0_REGS, (1u << evtqueNum));\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t/* Transfer completion code error. */\n\t\t\tif ((pendingIrqs & (1 << EDMA3CC_CCERR_TCCERR_SHIFT)) != 0u)\n\t\t\t{\n\t\t\t\tEDMA3ClrCCErr(SOC_EDMA31CC_0_REGS,0x01u << EDMA3CC_CCERR_TCCERR_SHIFT);\n\t\t\t}\n\t\t\t\t++index;\n\t\t\t}\n\t\t\tCnt++;       \n\t\t}\n\t}    \n}\n\nvoid edma3CCComplIsr()\n{\n\n\tvolatile unsigned int pendingIrqs;\n\tvolatile unsigned int isIPR = 0;\n\n\tunsigned int indexl;\n\tunsigned int Cnt = 0;\n\tindexl = 1u;\n\tIntEventClear(SYS_INT_EDMA3_0_CC0_INT1);\n\n\tisIPR = EDMA3GetIntrStatus(SOC_EDMA30CC_0_REGS);\n\t//DSP2WDT_STR.Write(//DSP2WDT_STR,1);\n\tif(isIPR)\n\t{\n\n\t\twhile ((Cnt < EDMA3CC_COMPL_HANDLER_RETRY_COUNT)&& (indexl != 0u))\n\t{\n\t\tindexl = 0u;\n\t\tpendingIrqs = EDMA3GetIntrStatus(SOC_EDMA30CC_0_REGS);\n\t\t//DSP2WDT_STR.Write(//DSP2WDT_STR,0);\n\t\twhile (pendingIrqs)\n\t\t{\n\t\tif(TRUE == (pendingIrqs & 1u))\n\t\t\t\t{\n\t\t\t\tEDMA3ClrIntr(SOC_EDMA30CC_0_REGS, indexl);\n\t\t\t\t(*cb_Fxn[indexl])(indexl, EDMA3_XFER_COMPLETE);\n\t\t\t\t}\n\t\t\t\t++indexl;\n\t\t\t\tpendingIrqs >>= 1u;\n\t\t}\n\t\t\tCnt++;\n\t}\n\t}\n}\nvoid edma3CCErrIsr()\n{\n\tvolatile unsigned int pendingIrqs;\n\tunsigned int Cnt = 0u;\n\tunsigned int index;\n\tunsigned int evtqueNum = 0;  /* Event Queue Num */\n\n\tpendingIrqs = 0u;\n\tindex = 1u;\n\n\tIntEventClear(SYS_INT_EDMA3_0_CC0_ERRINT);\n\tif((EDMA3GetErrIntrStatus(SOC_EDMA30CC_0_REGS) != 0 )\n\t\t|| (EDMA3QdmaGetErrIntrStatus(SOC_EDMA30CC_0_REGS) != 0)\n\t\t|| (EDMA3GetCCErrStatus(SOC_EDMA30CC_0_REGS) != 0))\n\t{\n\t\t/* Loop for EDMA3CC_ERR_HANDLER_RETRY_COUNT number of time,\n\t\t * breaks when no pending interrupt is found \n\t\t */\n\t\twhile ((Cnt < EDMA3CC_ERR_HANDLER_RETRY_COUNT)\n\t\t\t\t\t&& (index != 0u))\n\t\t{\n\t\t\tindex = 0u;\n\t\t\tpendingIrqs = EDMA3GetErrIntrStatus(SOC_EDMA30CC_0_REGS);\n\t\t\twhile (pendingIrqs)\n\t\t\t{\n\t\t\t/*Process all the pending interrupts*/\n\t\t\tif(TRUE == (pendingIrqs & 1u))\n\t\t\t{\n\t\t\t\t\t/* Write to EMCR to clear the corresponding EMR bits.\n\t\t\t\t\t */\n\t\t\t\t\t/*Clear any SER*/\n\t\t\t\tEDMA3ClrMissEvt(SOC_EDMA30CC_0_REGS, index);\n\t\t\t\t}\n\t\t\t\t++index;\n\t\t\t\tpendingIrqs >>= 1u;\n\t\t\t}\n\t\t\tindex = 0u;\n\t\t\tpendingIrqs = EDMA3QdmaGetErrIntrStatus(SOC_EDMA30CC_0_REGS);\n\t\t\twhile (pendingIrqs)\n\t\t\t{\n\t\t\t\t/*Process all the pending interrupts*/\n\t\t\t\tif(TRUE == (pendingIrqs & 1u))\n\t\t\t\t{\n\t\t\t/* Here write to QEMCR to clear the corresponding QEMR bits*/\n\t\t\t\t\t/*Clear any QSER*/\n\t\t\t\t\tEDMA3QdmaClrMissEvt(SOC_EDMA30CC_0_REGS, index);\n\t\t\t\t}\n\t\t\t\t++index;\n\t\t\t\tpendingIrqs >>= 1u;\n\t\t\t}\n\t\t\tindex = 0u;\n\t\t\tpendingIrqs = EDMA3GetCCErrStatus(SOC_EDMA30CC_0_REGS);\n\t\t\tif (pendingIrqs != 0u)\n\t\t\t{\n\t\t\t/* Process all the pending CC error interrupts. */\n\t\t\t/* Queue threshold error for different event queues.*/\n\t\t\tfor (evtqueNum = 0u; evtqueNum < SOC_EDMA3_NUM_EVQUE; evtqueNum++)\n\t\t\t\t{\n\t\t\t\tif((pendingIrqs & (1u << evtqueNum)) != 0u)\n\t\t\t\t{\n\t\t\t\t\t\t/* Clear the error interrupt. */\n\t\t\t\t\t\tEDMA3ClrCCErr(SOC_EDMA30CC_0_REGS, (1u << evtqueNum));\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t/* Transfer completion code error. */\n\t\t\tif ((pendingIrqs & (1 << EDMA3CC_CCERR_TCCERR_SHIFT)) != 0u)\n\t\t\t{\n\t\t\t\tEDMA3ClrCCErr(SOC_EDMA30CC_0_REGS,0x01u << EDMA3CC_CCERR_TCCERR_SHIFT);\n\t\t\t}\n\t\t\t\t++index;\n\t\t\t}\n\t\t\tCnt++;       \n\t\t}\n\t}    \n}\nvoid Quad_GPIO_ISR_CPU(void)\n{\n\tstatic uint32_t offset = 0;\n\t//static uint8_t LSR=0;\n\tstatic uint8_t ISR=0;\n\tif(offset>=QUAD_SAMPLE) offset =0;\n\t/* Disable the GPIO interrupt */\n\tGPIOBankIntDisable(SOC_GPIO_0_REGS, SYS_INT_GPIO_B0INT);\n\t/* Clear interrupt status in DSPINTC */\n\tIntEventClear(SYS_INT_GPIO_B0INT);\n\t/*Get the Pending Event*/\n\t//For Data Integrity Purposes, make sure that all Interruptions are set, then clear them\n\tGPIOPinIntClear(SOC_GPIO_0_REGS, 1);\n\tGPIOPinIntClear(SOC_GPIO_0_REGS, 2);\n\tGPIOPinIntClear(SOC_GPIO_0_REGS, 3);\n\tGPIOPinIntClear(SOC_GPIO_0_REGS, 4);\n\t//Enable DMA for all channels\n\t//if(counter > QUAD_SAMPLE) counter =0;\n\tuint32_t i=0;\n\tuint32_t j = 64*(offset++);\n\t//uint8_t F40_RHR = 0; \n\t//uint8_t F41_RHR = 0; \n\tfor(i=0;i<64;i++)\n\t{\n\t\t\n\t\t//F40_dstBuff[j+i] = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_A + QUAD_READ_RHR));\n\t\t//F41_dstBuff[j+i] = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_B + QUAD_READ_RHR));\n\t\t//F42_dstBuff[j+i] = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_C + QUAD_READ_RHR));\n\t\t//F43_dstBuff[j+i] = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_D + QUAD_READ_RHR));\n\t}\n\t//LSR = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_A + QUAD_READ_LSR));\n\tISR = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_B + QUAD_READ_ISR));\n\t//LSR = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_C + QUAD_READ_LSR));\n\tISR = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_D + QUAD_READ_ISR));\n\t//LSR = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_A + QUAD_READ_LSR));\n\tISR = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_B + QUAD_READ_ISR));\n\t//LSR = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_C + QUAD_READ_LSR));\n\tISR = (*(volatile uint8_t*)(SOC_EMIFA_CS4_ADDR + QUAD_CS_D + QUAD_READ_ISR));\n\tGPIOBankIntEnable(SOC_GPIO_0_REGS, SYS_INT_GPIO_B0INT);\n}\n",
+					"file": "/home/bery/Work/c6748/devices/qdma_test.c",
+					"file_size": 18431,
+					"file_write_time": 131347824249976709,
+					"settings":
+					{
+						"buffer_size": 18431,
+						"encoding": "UTF-8",
+						"line_ending": "Unix"
+					}
+				},
+				{
+					"file": "/home/bery/Work/c6748/lib/include/interrupt.h",
+					"settings":
+					{
+						"buffer_size": 9146,
+						"line_ending": "Windows"
+					}
+				},
+				{
+					"file": "/home/bery/Work/c6748/lib/drivers/gpio.c",
+					"settings":
+					{
+						"buffer_size": 19571,
+						"line_ending": "Windows"
+					}
+				},
+				{
+					"file": "/home/bery/Work/c6748/Debug/lidd.asm",
+					"settings":
+					{
+						"buffer_size": 66208,
+						"line_ending": "Unix"
+					}
+				},
+				{
+					"file": "/home/bery/Work/c6748/lib/drivers/edma.c",
+					"settings":
+					{
+						"buffer_size": 54158,
+						"line_ending": "Windows"
+					}
+				}
+			],
+			"build_system": "",
+			"build_system_choices":
+			[
+			],
+			"build_varint": "",
+			"command_palette":
+			{
+				"height": 272.0,
+				"last_filter": "cscope",
+				"selected_items":
+				[
+					[
+						"cscope",
+						"Cscope: Look up symbol"
+					],
+					[
+						"git status",
+						"Git: Status"
+					],
+					[
+						"install",
+						"Package Control: Install Package"
+					],
+					[
+						"ctags",
+						"CTags: Rebuild Tags"
+					]
+				],
+				"width": 593.0
+			},
+			"console":
+			{
+				"height": 126.0,
+				"history":
+				[
+					"import urllib.request,os,hashlib; h = 'df21e130d211cfc94d9b0905775a7c0f' + '1e3d39e33b79698005270310898eea76'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+				]
+			},
+			"distraction_free":
+			{
+				"menu_visible": true,
+				"show_minimap": false,
+				"show_open_files": false,
+				"show_tabs": false,
+				"side_bar_visible": false,
+				"status_bar_visible": false
+			},
+			"expanded_folders":
+			[
+				"/home/bery/Work/c6748",
+				"/home/bery/Work/c6748/Debug",
+				"/home/bery/Work/c6748/app",
+				"/home/bery/Work/c6748/devices",
+				"/home/bery/Work/c6748/fsm"
+			],
+			"file_history":
+			[
+				"/home/bery/Work/c6748/lib/include/ehrpwm.h",
+				"/home/bery/Work/c6748/Debug/lookup_table.asm",
+				"/home/bery/Work/c6748/Debug/inputs.asm",
+				"/home/bery/Work/c6748/C6748_LCDK.gel"
+			],
+			"find":
+			{
+				"height": 34.0
+			},
+			"find_in_files":
+			{
+				"height": 0.0,
+				"where_history":
+				[
+				]
+			},
+			"find_state":
+			{
+				"case_sensitive": false,
+				"find_history":
+				[
+					"NormalRoutine",
+					"Normal",
+					"Routine",
+					"NormalRoutin e",
+					"F7_Cntrl_Handler",
+					"FSM"
+				],
+				"highlight": true,
+				"in_selection": false,
+				"preserve_case": false,
+				"regex": false,
+				"replace_history":
+				[
+					"GPIOBankIntEnable"
+				],
+				"reverse": false,
+				"show_context": true,
+				"use_buffer2": true,
+				"whole_word": false,
+				"wrap": true
+			},
+			"folders":
+			[
+				{
+					"path": "/home/bery/Work/c6748"
+				}
+			],
+			"groups":
+			[
+				{
+					"selected": 0,
+					"sheets":
+					[
+						{
+							"buffer": 0,
+							"file": "/home/bery/Work/c6748/devices/qdma_test.c",
+							"semi_transient": false,
+							"settings":
+							{
+								"buffer_size": 18431,
+								"regions":
+								{
+								},
+								"selection":
+								[
+									[
+										10855,
+										10855
+									]
+								],
+								"settings":
+								{
+									"bracket_highlighter.busy": false,
+									"bracket_highlighter.locations":
+									{
+										"close":
+										{
+											"1":
+											[
+												11152,
+												11153
+											]
+										},
+										"icon":
+										{
+											"1":
+											[
+												"Packages/BracketHighlighter/icons/curly_bracket.png",
+												"brackethighlighter.default"
+											]
+										},
+										"open":
+										{
+											"1":
+											[
+												10854,
+												10855
+											]
+										},
+										"unmatched":
+										{
+										}
+									},
+									"bracket_highlighter.regions":
+									[
+										"bh_default",
+										"bh_default_center",
+										"bh_default_open",
+										"bh_default_close",
+										"bh_default_content",
+										"bh_c_define",
+										"bh_c_define_center",
+										"bh_c_define_open",
+										"bh_c_define_close",
+										"bh_c_define_content",
+										"bh_curly",
+										"bh_curly_center",
+										"bh_curly_open",
+										"bh_curly_close",
+										"bh_curly_content",
+										"bh_double_quote",
+										"bh_double_quote_center",
+										"bh_double_quote_open",
+										"bh_double_quote_close",
+										"bh_double_quote_content",
+										"bh_tag",
+										"bh_tag_center",
+										"bh_tag_open",
+										"bh_tag_close",
+										"bh_tag_content",
+										"bh_angle",
+										"bh_angle_center",
+										"bh_angle_open",
+										"bh_angle_close",
+										"bh_angle_content",
+										"bh_single_quote",
+										"bh_single_quote_center",
+										"bh_single_quote_open",
+										"bh_single_quote_close",
+										"bh_single_quote_content",
+										"bh_regex",
+										"bh_regex_center",
+										"bh_regex_open",
+										"bh_regex_close",
+										"bh_regex_content",
+										"bh_round",
+										"bh_round_center",
+										"bh_round_open",
+										"bh_round_close",
+										"bh_round_content",
+										"bh_square",
+										"bh_square_center",
+										"bh_square_open",
+										"bh_square_close",
+										"bh_square_content",
+										"bh_unmatched",
+										"bh_unmatched_center",
+										"bh_unmatched_open",
+										"bh_unmatched_close",
+										"bh_unmatched_content"
+									],
+									"syntax": "Packages/C++/C.sublime-syntax",
+									"translate_tabs_to_spaces": false
+								},
+								"translation.x": 0.0,
+								"translation.y": 3220.0,
+								"zoom_level": 1.0
+							},
+							"stack_index": 0,
+							"type": "text"
+						},
+						{
+							"buffer": 1,
+							"file": "/home/bery/Work/c6748/lib/include/interrupt.h",
+							"semi_transient": false,
+							"settings":
+							{
+								"buffer_size": 9146,
+								"regions":
+								{
+								},
+								"selection":
+								[
+									[
+										8385,
+										8385
+									]
+								],
+								"settings":
+								{
+									"bracket_highlighter.busy": false,
+									"bracket_highlighter.locations":
+									{
+										"close":
+										{
+										},
+										"icon":
+										{
+										},
+										"open":
+										{
+										},
+										"unmatched":
+										{
+										}
+									},
+									"bracket_highlighter.regions":
+									[
+										"bh_default",
+										"bh_default_center",
+										"bh_default_open",
+										"bh_default_close",
+										"bh_default_content",
+										"bh_c_define",
+										"bh_c_define_center",
+										"bh_c_define_open",
+										"bh_c_define_close",
+										"bh_c_define_content",
+										"bh_curly",
+										"bh_curly_center",
+										"bh_curly_open",
+										"bh_curly_close",
+										"bh_curly_content",
+										"bh_double_quote",
+										"bh_double_quote_center",
+										"bh_double_quote_open",
+										"bh_double_quote_close",
+										"bh_double_quote_content",
+										"bh_tag",
+										"bh_tag_center",
+										"bh_tag_open",
+										"bh_tag_close",
+										"bh_tag_content",
+										"bh_angle",
+										"bh_angle_center",
+										"bh_angle_open",
+										"bh_angle_close",
+										"bh_angle_content",
+										"bh_single_quote",
+										"bh_single_quote_center",
+										"bh_single_quote_open",
+										"bh_single_quote_close",
+										"bh_single_quote_content",
+										"bh_regex",
+										"bh_regex_center",
+										"bh_regex_open",
+										"bh_regex_close",
+										"bh_regex_content",
+										"bh_round",
+										"bh_round_center",
+										"bh_round_open",
+										"bh_round_close",
+										"bh_round_content",
+										"bh_square",
+										"bh_square_center",
+										"bh_square_open",
+										"bh_square_close",
+										"bh_square_content",
+										"bh_unmatched",
+										"bh_unmatched_center",
+										"bh_unmatched_open",
+										"bh_unmatched_close",
+										"bh_unmatched_content"
+									],
+									"syntax": "Packages/C++/C++.sublime-syntax"
+								},
+								"translation.x": 0.0,
+								"translation.y": 3610.0,
+								"zoom_level": 1.0
+							},
+							"stack_index": 2,
+							"type": "text"
+						},
+						{
+							"buffer": 2,
+							"file": "/home/bery/Work/c6748/lib/drivers/gpio.c",
+							"semi_transient": false,
+							"settings":
+							{
+								"buffer_size": 19571,
+								"regions":
+								{
+								},
+								"selection":
+								[
+									[
+										16084,
+										16084
+									]
+								],
+								"settings":
+								{
+									"bracket_highlighter.busy": false,
+									"bracket_highlighter.locations":
+									{
+										"close":
+										{
+										},
+										"icon":
+										{
+										},
+										"open":
+										{
+										},
+										"unmatched":
+										{
+										}
+									},
+									"bracket_highlighter.regions":
+									[
+										"bh_default",
+										"bh_default_center",
+										"bh_default_open",
+										"bh_default_close",
+										"bh_default_content",
+										"bh_c_define",
+										"bh_c_define_center",
+										"bh_c_define_open",
+										"bh_c_define_close",
+										"bh_c_define_content",
+										"bh_curly",
+										"bh_curly_center",
+										"bh_curly_open",
+										"bh_curly_close",
+										"bh_curly_content",
+										"bh_double_quote",
+										"bh_double_quote_center",
+										"bh_double_quote_open",
+										"bh_double_quote_close",
+										"bh_double_quote_content",
+										"bh_tag",
+										"bh_tag_center",
+										"bh_tag_open",
+										"bh_tag_close",
+										"bh_tag_content",
+										"bh_angle",
+										"bh_angle_center",
+										"bh_angle_open",
+										"bh_angle_close",
+										"bh_angle_content",
+										"bh_single_quote",
+										"bh_single_quote_center",
+										"bh_single_quote_open",
+										"bh_single_quote_close",
+										"bh_single_quote_content",
+										"bh_regex",
+										"bh_regex_center",
+										"bh_regex_open",
+										"bh_regex_close",
+										"bh_regex_content",
+										"bh_round",
+										"bh_round_center",
+										"bh_round_open",
+										"bh_round_close",
+										"bh_round_content",
+										"bh_square",
+										"bh_square_center",
+										"bh_square_open",
+										"bh_square_close",
+										"bh_square_content",
+										"bh_unmatched",
+										"bh_unmatched_center",
+										"bh_unmatched_open",
+										"bh_unmatched_close",
+										"bh_unmatched_content"
+									],
+									"syntax": "Packages/C++/C.sublime-syntax",
+									"tab_size": 4,
+									"translate_tabs_to_spaces": true
+								},
+								"translation.x": 0.0,
+								"translation.y": 5695.0,
+								"zoom_level": 1.0
+							},
+							"stack_index": 1,
+							"type": "text"
+						},
+						{
+							"buffer": 3,
+							"file": "/home/bery/Work/c6748/Debug/lidd.asm",
+							"semi_transient": false,
+							"settings":
+							{
+								"buffer_size": 66208,
+								"regions":
+								{
+								},
+								"selection":
+								[
+									[
+										1385,
+										1385
+									]
+								],
+								"settings":
+								{
+									"bracket_highlighter.busy": false,
+									"bracket_highlighter.locations":
+									{
+										"close":
+										{
+										},
+										"icon":
+										{
+										},
+										"open":
+										{
+										},
+										"unmatched":
+										{
+										}
+									},
+									"bracket_highlighter.regions":
+									[
+										"bh_default",
+										"bh_default_center",
+										"bh_default_open",
+										"bh_default_close",
+										"bh_default_content",
+										"bh_c_define",
+										"bh_c_define_center",
+										"bh_c_define_open",
+										"bh_c_define_close",
+										"bh_c_define_content",
+										"bh_curly",
+										"bh_curly_center",
+										"bh_curly_open",
+										"bh_curly_close",
+										"bh_curly_content",
+										"bh_double_quote",
+										"bh_double_quote_center",
+										"bh_double_quote_open",
+										"bh_double_quote_close",
+										"bh_double_quote_content",
+										"bh_tag",
+										"bh_tag_center",
+										"bh_tag_open",
+										"bh_tag_close",
+										"bh_tag_content",
+										"bh_angle",
+										"bh_angle_center",
+										"bh_angle_open",
+										"bh_angle_close",
+										"bh_angle_content",
+										"bh_single_quote",
+										"bh_single_quote_center",
+										"bh_single_quote_open",
+										"bh_single_quote_close",
+										"bh_single_quote_content",
+										"bh_regex",
+										"bh_regex_center",
+										"bh_regex_open",
+										"bh_regex_close",
+										"bh_regex_content",
+										"bh_round",
+										"bh_round_center",
+										"bh_round_open",
+										"bh_round_close",
+										"bh_round_content",
+										"bh_square",
+										"bh_square_center",
+										"bh_square_open",
+										"bh_square_close",
+										"bh_square_content",
+										"bh_unmatched",
+										"bh_unmatched_center",
+										"bh_unmatched_open",
+										"bh_unmatched_close",
+										"bh_unmatched_content"
+									],
+									"syntax": "Packages/Text/Plain text.tmLanguage"
+								},
+								"translation.x": 0.0,
+								"translation.y": 0.0,
+								"zoom_level": 1.0
+							},
+							"stack_index": 3,
+							"type": "text"
+						},
+						{
+							"buffer": 4,
+							"file": "/home/bery/Work/c6748/lib/drivers/edma.c",
+							"semi_transient": false,
+							"settings":
+							{
+								"buffer_size": 54158,
+								"regions":
+								{
+								},
+								"selection":
+								[
+									[
+										29225,
+										29225
+									]
+								],
+								"settings":
+								{
+									"bracket_highlighter.busy": false,
+									"bracket_highlighter.locations":
+									{
+										"close":
+										{
+										},
+										"icon":
+										{
+										},
+										"open":
+										{
+										},
+										"unmatched":
+										{
+										}
+									},
+									"bracket_highlighter.regions":
+									[
+										"bh_default",
+										"bh_default_center",
+										"bh_default_open",
+										"bh_default_close",
+										"bh_default_content",
+										"bh_c_define",
+										"bh_c_define_center",
+										"bh_c_define_open",
+										"bh_c_define_close",
+										"bh_c_define_content",
+										"bh_curly",
+										"bh_curly_center",
+										"bh_curly_open",
+										"bh_curly_close",
+										"bh_curly_content",
+										"bh_double_quote",
+										"bh_double_quote_center",
+										"bh_double_quote_open",
+										"bh_double_quote_close",
+										"bh_double_quote_content",
+										"bh_tag",
+										"bh_tag_center",
+										"bh_tag_open",
+										"bh_tag_close",
+										"bh_tag_content",
+										"bh_angle",
+										"bh_angle_center",
+										"bh_angle_open",
+										"bh_angle_close",
+										"bh_angle_content",
+										"bh_single_quote",
+										"bh_single_quote_center",
+										"bh_single_quote_open",
+										"bh_single_quote_close",
+										"bh_single_quote_content",
+										"bh_regex",
+										"bh_regex_center",
+										"bh_regex_open",
+										"bh_regex_close",
+										"bh_regex_content",
+										"bh_round",
+										"bh_round_center",
+										"bh_round_open",
+										"bh_round_close",
+										"bh_round_content",
+										"bh_square",
+										"bh_square_center",
+										"bh_square_open",
+										"bh_square_close",
+										"bh_square_content",
+										"bh_unmatched",
+										"bh_unmatched_center",
+										"bh_unmatched_open",
+										"bh_unmatched_close",
+										"bh_unmatched_content"
+									],
+									"syntax": "Packages/C++/C.sublime-syntax",
+									"tab_size": 4,
+									"translate_tabs_to_spaces": true
+								},
+								"translation.x": 0.0,
+								"translation.y": 12988.0,
+								"zoom_level": 1.0
+							},
+							"stack_index": 4,
+							"type": "text"
+						}
+					]
+				}
+			],
+			"incremental_find":
+			{
+				"height": 23.0
+			},
+			"input":
+			{
+				"height": 0.0
+			},
+			"layout":
+			{
+				"cells":
+				[
+					[
+						0,
+						0,
+						1,
+						1
+					]
+				],
+				"cols":
+				[
+					0.0,
+					1.0
+				],
+				"rows":
+				[
+					0.0,
+					1.0
+				]
+			},
+			"menu_visible": true,
+			"output.find_results":
+			{
+				"height": 0.0
+			},
+			"pinned_build_system": "",
+			"position": "0,1,0,0,0,0,0,1080,1891,4080,1920",
+			"project": "",
+			"replace":
+			{
+				"height": 42.0
+			},
+			"save_all_on_build": true,
+			"select_file":
+			{
+				"height": 0.0,
+				"last_filter": "",
+				"selected_items":
+				[
+				],
+				"width": 0.0
+			},
+			"select_project":
+			{
+				"height": 0.0,
+				"last_filter": "",
+				"selected_items":
+				[
+				],
+				"width": 0.0
+			},
+			"select_symbol":
+			{
+				"height": 0.0,
+				"last_filter": "",
+				"selected_items":
+				[
+				],
+				"width": 0.0
+			},
+			"selected_group": 0,
+			"settings":
+			{
+			},
+			"show_minimap": true,
+			"show_open_files": false,
+			"show_tabs": true,
+			"side_bar_visible": true,
+			"side_bar_width": 254.0,
+			"status_bar_visible": true,
+			"template_settings":
+			{
+			},
+			"window_id": 1,
+			"workspace_name": ""
+		}
+	],
+	"workspaces":
+	{
+		"recent_workspaces":
+		[
+		]
+	}
+}

@@ -1,0 +1,21 @@
+{
+	"bootstrapped": true,
+	"in_process_packages":
+	[
+	],
+	"installed_packages":
+	[
+		"Alignment",
+		"AlignTab",
+		"All Autocomplete",
+		"BracketHighlighter",
+		"Clang Format",
+		"ClangAutoComplete",
+		"Cscope",
+		"CTags",
+		"Git",
+		"Jimbly's Clipboard History",
+		"Package Control",
+		"SideBarEnhancements"
+	]
+}
